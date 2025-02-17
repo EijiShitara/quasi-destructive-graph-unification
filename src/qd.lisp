@@ -1,4 +1,4 @@
-(defpackage #:qa
+(defpackage #:qd
   (:use #:cl)
   (:export #:node
            #:node-type
