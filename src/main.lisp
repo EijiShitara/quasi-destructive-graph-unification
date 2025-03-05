@@ -75,10 +75,60 @@
   `(progn (incf *dgarcs*)
           (cons ,label ,values)))
 
+(defmacro arc-label (arc) `(car ,arc))
+(defun arc-label-function (arc) (arc-label arc))
+(defmacro arc-calue (arc) `(cdr ,arc))
+(defmacro arc-p (arc) `(consp ,arc))
 
-  
+(defun create-dgnode (&key (type :atomic)
+                           (arc-list nil))
+  (declare (type symbol type)
+           (type list arc-list))
+  (let ((temp (make-dgnode
+               :arc-list arc-list
+               :type type)))
+    (declare (type dgnode temp))
+    ;; (incf *dgnodes*)
+    temp))
 
+(defmacro %create-dgnode (&optional (type :atomic))
+  (declare (type symbol type)
+           (special *dgnodes*))
+  `(let ((temp (make-dgnode :type ,type)))
+     ;; (push temp *dgnode-list*)
+     (declare (type dgnode temp))
+     (incf *dgnodes*)
+     temp))
 
+;;; Macro definitions
+(defmacro atomicnode-p (dgnode)
+  (declare (type dgnode dgnode))
+  `(eq (dgnode-type ,dgnode) :atomic))
+
+(defmacro leafnode-p (dgnode)
+  (declare (type dgnode dgnode))
+  `(eq (dgnode-type ,dgnode) :leaf))
+
+(defmacro complexnode-p (dgnode)
+  (declare (type dgnode dgnode))
+  `(eq (dgnode-type ,dgnode) :complex))
+
+(defmacro find-atomic (arc-list)
+  `(find :atomic ,arc-list
+         :test #'eq
+         :key #'(lambda (arc) (arc-label arc))))
+
+(defmacro find-leaf (arc-list)
+  `(find :leaf ,arc-list
+         :test #'eq
+         :key #'(lambda (arc) (arc-label arc))))
+
+(defmacro find-complex (arc-list)
+  `(find :complex ,arc-list
+         :test #'eq
+         :key #'(lambda (arc) (arc-label arc))))
+
+;;;;
 (defmacro graph-unify (dg1 dg2 &optional result)
   `(unify-dg ,dg1 ,dg2 ,result))
 
