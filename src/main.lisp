@@ -32,3 +32,53 @@
 
 (defun copy-arc-and-comp-arc-share (input-arc)
   )
+
+;;;
+(defvar *features*)
+(defparameter *atom-sharing* nil)
+(defparameter *str-sharing* nil)
+(defparameter *unification* 'quasi-unify)
+
+(proclaim '(type t *atom-sharing* *str-sharing*))
+
+(defvar *debug-stream1* *standard-output*)
+(defvar *dgnode-list* nil)
+(defvar *unify-global-counter* 10)
+
+(proclaim '(fixnum *unify-global-counter*))
+
+(defvar *dgnodes* 0)
+(defvar *dgarcs* 0)
+(defvar *unify0* 0)
+(defvar *unify1* 0)
+
+(proclaim '(fixnum *dg-nodes* *dg-arcs* *unify0* *unify1*))
+
+;;; data structure
+
+;;; arc-types
+(defconstant +normal+ '=)
+(defconstant +must-be-present+ '=c)
+(defconstant +multiple-valued+ '>)
+
+;;; dggnode creation
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (deftype dgarc () 'cons))
+
+(defmacro create-arc (&key (label nil)
+                        (type +normal+)
+                        (value nil))
+  (declare (type symbol label)
+           (type symbol type)
+           (type dgnode values)
+           (special *dgarcs*))
+  `(progn (incf *dgarcs*)
+          (cons ,label ,values)))
+
+
+  
+
+
+(defmacro graph-unify (dg1 dg2 &optional result)
+  `(unify-dg ,dg1 ,dg2 ,result))
+
