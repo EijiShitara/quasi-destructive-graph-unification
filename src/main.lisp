@@ -128,6 +128,84 @@
          :test #'eq
          :key #'(lambda (arc) (arc-label arc))))
 
+;; generic version
+(defmacro find-arc-with-label (label arc-lst)
+  `(find ,label ,arc-lst
+         :test #'eq
+         :key #'(lambda (arc) (arc-label arc))))
+
+(defmacro find-arc-with-label (label arc-lst)
+  (declare (type symbol label)
+           (type list arc-lst))
+  `(assoc ,label ,arc-lst :test #'eq))
+
+(defmacro simple-copy-arc (arc)
+  (declare (type dgarc arc))
+  `(create-arc :label (arc-label ,arc)
+               :value (simple-copy-dgnode (arc-value ,arc))))
+
+(defmacro identical-atomic-dgnodep (dg1 dg2)
+  (declare (type dgnode dg1 dg2))
+  `(eq (dgnode-arc-list ,dg1) (dgnode-arc-list ,dg2)))
+
+(defmacro dgnode-arc-labels (dgnode)
+  (declare (type dgnode dgnode))
+  `(when (complexnode-p ,dgnode)
+     (mapcar #'(lambda (arc)
+                 (arc-label arc))
+             (dgnode-arc-list ,dgnode))))
+
+(defmacro return-real-arc (label dgnode)
+  (declare (type symbol label)
+           (type dgnode dgnode))
+  `(if (and (dgnode-comp-arc-list ,dgnode)
+            (= *unify-global-counter*
+               (dgnode-generation ,dgnode)))
+       (or (find ,label (dgnode-arc-list ,dgnode)
+                 :test #'eq
+                 :key #'(lambda (a) (arc-label a)))
+           (find ,label (dgnode-comp-arc-list ,dgnode)
+                 :test #'eq
+                 :key #'(lambda (a) (arc-label a))))
+       (find ,label (dgnode-arc-list ,dgnode)
+             :test #'eq
+             :key #'(lambda (a) (arc-label a)))))
+
+(defmacro set-temporary-forward-dgnode (dgnode1 dgnode2)
+  (declare (type dgnode dgnode1 dgnode2)
+           (special *unify-global-counter*))
+  `(unless (or (eq ,dgnode1 ,dgnode2)
+               (= (dgnode-generation dgnode1) 9))
+     (setf (dggnode-forward ,dgnode1) ,gdnode2)
+     (setf (dgnode-generation ,dgnode1) *unify-global-counter*)))
+
+(defmacro set-permanent-forward-dgnode (dgnode1 dgnode2)
+  (declare (type dgnode dgnode1 dgnode2))
+  `(unless (eq ,dgnode1 ,dgnode2)
+     (setf (dggnode-forward ,dgnode1) ,gdnode2)
+     (setf (dgnode-generation ,dgnode1) 9)))
+
+(defmacro forward-dg (dg1 dg2 &optional (type :temporary))
+  (declare (type dgnode dg1 dg2)
+           (type symbol type))
+  `(case ,type
+     (:temporary (set-temporary-forward-dgnode ,dg1 ,dg2))
+     (:permanent (set-permanent-forward-dgnode ,dg1 ,dg2))))
+
+(defmacro dereference-dg (dg-input)
+  (declare (type dgnode dg-input))
+  `(do ((result ,dg-input dg)
+        (dg ,dg-input
+            (if (and (dgnode-forward dg)
+                     (or (= (dgnode-generation dg) *unify-global-counter*)
+                         (= (dgnode-generation dg) 9)))
+                (dgnode-forward dg)
+                (setf (dgnode-forward dg) nil))))
+       ((null dg) result)
+     (declare (type dgnode result dg))))
+
+
+           
 ;;;;
 (defmacro graph-unify (dg1 dg2 &optional result)
   `(unify-dg ,dg1 ,dg2 ,result))
