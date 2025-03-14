@@ -204,7 +204,11 @@
        ((null dg) result)
      (declare (type dgnode result dg))))
 
-
+(defmacro map-dolist (varlist body)
+  (let ((map-result (gensym)))
+    `(let ((,map-result nil))
+       (dolist ,varlist (push ,body ,map-result))
+       (nreverse ,map-result))))
            
 ;;;;
 (defmacro graph-unify (dg1 dg2 &optional result)
