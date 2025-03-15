@@ -209,6 +209,26 @@
     `(let ((,map-result nil))
        (dolist ,varlist (push ,body ,map-result))
        (nreverse ,map-result))))
+
+(defun complementarcs (dg1 dg2)
+  (declare (type dgnode dg1 dg2)
+           (special *unify-global-counter*))
+  (let ((arc-list1 (if (and (dgnode-comp-arc-list dg1)
+                            (= *unify-global-counter* (dgnode-generation dg1)))
+                       (append (dgnode-comp-arc-list dg1)
+                               (dgnode-arc-list dg1))
+                       (dgnode-arc-list dg1)))
+        (arc-list2 (if (and (dgnode-comp-arc-list dg2)
+                            (= *unify-global-counter* (dgnode-generation dg2)))
+                       (append (dgnode-comp-arc-list dg2)
+                               (dgnode-arc-list dg2))
+                       (dgnode-arc-list dg2))))
+    (declare (type list arc-list1 arc-list2))
+    (set-difference arc-list1 arc-list2
+                    :test
+                    #'(lambda (arc1 arc2) (eq (arc-label arc1)
+                                              (arc-label arc2))))))
+
            
 ;;;;
 (defmacro graph-unify (dg1 dg2 &optional result)
