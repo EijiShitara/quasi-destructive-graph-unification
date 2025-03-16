@@ -81,7 +81,7 @@
 (defmacro arc-p (arc) `(consp ,arc))
 
 (defun create-dgnode (&key (type :atomic)
-                           (arc-list nil))
+                        (arc-list nil))
   (declare (type symbol type)
            (type list arc-list))
   (let ((temp (make-dgnode
@@ -229,8 +229,27 @@
                     #'(lambda (arc1 arc2) (eq (arc-label arc1)
                                               (arc-label arc2))))))
 
-           
-;;;;
-(defmacro graph-unify (dg1 dg2 &optional result)
-  `(unify-dg ,dg1 ,dg2 ,result))
-
+(defun intersectarcs (dg1 dg2)
+  (declare (type dgnode dg1 dg2))
+  (labels ((tr-intersectarcs (arcs1 arcs2 result1)
+             (cond ((null arcs1) result1)
+                   ((member (arc-label (car arcs1)) arcs2
+                            :test #'eq
+                            :key #'(lambda (bbb) (arc-label bbb)))
+                    (tr-intersectarcs (cdr arcs1) arcs2 (cons (car arcs1) result1)))
+                   (t (tr-intersectarcs (cdr arcs1) arcs2 result1)))))
+    (declare (type list arcs1 arcs2 result1))
+    (let ((arc-list1 (if (and (dgnode-comp-arc-list dg1)
+                              (= *unify-global-counter*
+                                 (dgnode-generation dg1)))
+                         (append (dgnode-comp-arc-list dg1)
+                                 (dgnode-arc-list dg1))
+                         (dgnode-arc-list dg1)))
+          (arc-list2 (if (and (dgnode-arc-list dg2)
+                              (= *unify-global-counter*
+                                 (dgnode-generation dg2)))
+                         (append (dgnode-comp-arc-list dg2)
+                                 (dgnode-arc-list dg2))
+                         (dgnode-arc-list dg2))))
+      (declare (type list arc-list1 arc-list2))
+      (tr-intersectarcs arc-list1 arc-list2))))
