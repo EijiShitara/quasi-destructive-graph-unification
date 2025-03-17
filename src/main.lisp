@@ -253,3 +253,7 @@
                          (dgnode-arc-list dg2))))
       (declare (type list arc-list1 arc-list2))
       (tr-intersectarcs arc-list1 arc-list2))))
+
+;;;; Unification Functions
+(defmacro graph-unify (dg1 dg2 &optional result)
+  `(unify-dg ,dg1 ,dg2 ,result))
