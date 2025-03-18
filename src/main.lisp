@@ -257,3 +257,12 @@
 ;;;; Unification Functions
 (defmacro graph-unify (dg1 dg2 &optional result)
   `(unify-dg ,dg1 ,dg2 ,result))
+
+(defmacro unify-fs (dg1 dg2 &optional result)
+  `(unify-dg ,dg1 ,dg2 ,result))
+
+(defun unify-dg (dg1 dg2 &optional result)
+  (declare (type dgnode dg1 dg2))
+  (setf result (catch 'unify-fail (unify0 dg1 dg2)))
+  (incf *unify-global-counter*)
+  result)
