@@ -1,3 +1,8 @@
+(defpackage #:main
+  (:use #:cl #:qd)
+  (:export #:*unify-global-counter*))
+(in-package #:main)
+
 (defparameter *unify-global-counter* 10)
 
 (defun unify-dg (dg1 dg2)
