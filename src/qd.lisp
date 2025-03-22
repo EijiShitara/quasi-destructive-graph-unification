@@ -10,6 +10,7 @@
            #:arc
            #:arc-label
            #:arc-values))
+(in-package #:qd)
 
 (defclass node ()
   ((node-type          :initarg :type
