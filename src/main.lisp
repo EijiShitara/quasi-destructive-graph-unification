@@ -271,3 +271,9 @@
   (setf result (catch 'unify-fail (unify0 dg1 dg2)))
   (incf *unify-global-counter*)
   result)
+
+(defun unify0 (dg1 dg2)
+  (declare (type dgnode dg1 dg2))
+  (incf *unify0*)
+  (if (eq '*T* (unify1 dg1 dg2))
+      (copy-dg-with-comp-arcs-share dg1)))
