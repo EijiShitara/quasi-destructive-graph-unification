@@ -277,3 +277,13 @@
   (incf *unify0*)
   (if (eq '*T* (unify1 dg1 dg2))
       (copy-dg-with-comp-arcs-share dg1)))
+
+(defun unify1 (dg1-underef dg2-underef2)
+  )
+
+(defun copy-dg-with-comp-arcs (dgnode-underef)
+  (declare (type dgnode-underef)
+           (special *str-sharing*))
+  (if *str-sharing*
+      (copy-dg-with-comp-arcs-share dgnode-underef)
+      (copy-dg-with-comp-arcs-no-share dgnode-underef)))
